@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kalkulator Kriptografi Klasik</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --radius-sm:8px;--radius-md:12px;--radius-lg:18px;--radius-xl:24px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.13);
+  --shadow-purple-light:0 8px 28px rgba(124,58,237,.22);
+  --t:.2s cubic-bezier(.4,0,.2,1);--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+[data-theme="light"] {
+  --bg:#f7f3ff;--bg2:#ffffff;--surface:#ffffff;--surface2:#faf8ff;
+  --border:#ede0ff;--border-strong:#cba6f7;--text:#1a0533;--text2:#5b21b6;--text3:#7c3aed;
+  --muted:#8b6bb1;--muted-soft:#c4b5fd;--accent:#7c3aed;--accent-hover:#6d28d9;
+  --accent-bg:#f3e8ff;--accent-soft:#ede9fe;--result-bg:#fdf8ff;--result-border:#a855f7;
+  --error-bg:#fff1f2;--error-text:#be123c;--error-border:#fca5a5;
+  --warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fde68a;
+  --info-bg:#f0f4ff;--info-text:#3730a3;--info-border:#c7d2fe;
+  --step-bg:#faf8ff;--step-border:#ede0ff;--inp-bg:#ffffff;
+  --nav-active-bg:#f0e8ff;--tag-bg:#ede9fe;--tag-text:#5b21b6;
+  --toggle-track:#e9d5ff;--toggle-knob:#7c3aed;
+  --grad-start:#7c3aed;--grad-end:#6d28d9;--header-deco:rgba(196,165,253,.35);
+  --rotor-key-bg:#f0fff4;--rotor-key-border:#86efac;--rotor-key-focus:#22c55e;
+}
+[data-theme="dark"] {
+  --bg:#0e0917;--bg2:#150d24;--surface:#160d26;--surface2:#1d1238;
+  --border:#2b1a4a;--border-strong:#5b3899;--text:#ede0ff;--text2:#c084fc;--text3:#b06ef3;
+  --muted:#7b5aaa;--muted-soft:#4a2d6e;--accent:#b06ef3;--accent-hover:#c084fc;
+  --accent-bg:#2b1a4a;--accent-soft:#1d1238;--result-bg:#150d24;--result-border:#7c3aed;
+  --error-bg:#2d0a14;--error-text:#fca5a5;--error-border:#7f1d1d;
+  --warn-bg:#1c1408;--warn-text:#fcd34d;--warn-border:#78350f;
+  --info-bg:#0f1530;--info-text:#a5b4fc;--info-border:#312e81;
+  --step-bg:#0e0917;--step-border:#2b1a4a;--inp-bg:#160d26;
+  --nav-active-bg:#2b1a4a;--tag-bg:#2b1a4a;--tag-text:#c084fc;
+  --toggle-track:#7c3aed;--toggle-knob:#ffffff;
+  --grad-start:#a855f7;--grad-end:#7c3aed;--header-deco:rgba(88,28,135,.4);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.35);--shadow-md:0 4px 16px rgba(0,0,0,.45);
+  --shadow-purple-light:0 8px 28px rgba(168,85,247,.3);
+  --rotor-key-bg:#0a1f12;--rotor-key-border:#166534;--rotor-key-focus:#22c55e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;
+  transition:background var(--t),color var(--t);line-height:1.6;font-size:15px}
+
+.hdr{position:sticky;top:0;z-index:200;background:var(--surface);
+  border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);
+  transition:background var(--t),border-color var(--t)}
+.hdr-inner{max-width:1180px;margin:0 auto;padding:0 1.5rem;height:60px;
+  display:flex;align-items:center;gap:.85rem}
+.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.logo-icon{width:34px;height:34px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:1rem;box-shadow:var(--shadow-purple-light)}
+.logo-texts{display:flex;flex-direction:column;line-height:1.15}
+.logo-name{font-size:.95rem;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.logo-sub{font-size:.6rem;color:var(--muted);letter-spacing:.3px}
+.hdr-space{flex:1}
+.theme-btn{display:flex;align-items:center;gap:.45rem;
+  background:var(--accent-soft);border:1.5px solid var(--border);
+  border-radius:999px;padding:.3rem .75rem;cursor:pointer;transition:all var(--t);user-select:none}
+.theme-btn:hover{border-color:var(--accent)}
+.theme-em{font-size:.8rem;color:var(--text3);font-weight:600}
+.sw-track{width:34px;height:18px;background:var(--toggle-track);
+  border-radius:999px;position:relative;transition:background var(--t);flex-shrink:0}
+.sw-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;
+  background:var(--toggle-knob);border-radius:50%;box-shadow:var(--shadow-sm);transition:transform var(--t)}
+[data-theme="dark"] .sw-knob{transform:translateX(16px)}
+.menu-btn{display:none;background:none;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);padding:.35rem .55rem;cursor:pointer;
+  color:var(--text);font-size:1rem;transition:all var(--t)}
+.menu-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.page{max-width:1180px;margin:0 auto;padding:1.75rem 1.5rem;
+  display:grid;grid-template-columns:230px 1fr;gap:1.75rem;align-items:start}
+
+.sidebar{position:sticky;top:76px}
+.sidebar-lbl{font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);padding:0 .75rem;margin-bottom:.5rem}
+.nav-ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+.nav-btn{width:100%;display:flex;align-items:center;gap:.7rem;padding:.65rem .8rem;
+  border:none;border-radius:var(--radius-md);background:transparent;cursor:pointer;
+  text-align:left;color:var(--muted);font-family:var(--font);font-size:.86rem;font-weight:500;
+  transition:all var(--t)}
+.nav-btn:hover{background:var(--accent-soft);color:var(--text)}
+.nav-btn.active{background:var(--nav-active-bg);color:var(--accent);font-weight:600;
+  box-shadow:inset 3px 0 0 var(--accent)}
+.nav-num{font-family:var(--mono);font-size:.68rem;background:var(--tag-bg);color:var(--tag-text);
+  padding:.1rem .4rem;border-radius:4px;flex-shrink:0;transition:background var(--t),color var(--t)}
+.nav-btn.active .nav-num{background:var(--accent);color:#fff}
+.nav-name{flex:1}
+.nav-arr{font-size:.7rem;opacity:0;transition:opacity var(--t)}
+.nav-btn:hover .nav-arr,.nav-btn.active .nav-arr{opacity:1}
+
+.panel{display:none}
+.panel.active{display:block;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.pnl-head{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:1.6rem 1.85rem;margin-bottom:1.25rem;box-shadow:var(--shadow-sm);
+  position:relative;overflow:hidden;transition:background var(--t),border-color var(--t)}
+.pnl-head::before{content:'';position:absolute;top:0;right:0;width:240px;height:240px;
+  border-radius:50%;background:radial-gradient(circle,var(--header-deco) 0%,transparent 68%);
+  transform:translate(70px,-70px);pointer-events:none}
+.pnl-tag{display:inline-flex;align-items:center;gap:.35rem;background:var(--tag-bg);
+  color:var(--tag-text);font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:.22rem .6rem;border-radius:999px;margin-bottom:.6rem}
+.pnl-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;letter-spacing:-.4px;
+  line-height:1.15;margin-bottom:.4rem;color:var(--text)}
+.pnl-title strong{background:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pnl-desc{color:var(--muted);font-size:.875rem;max-width:500px;margin-bottom:.85rem}
+.formula-row{display:flex;flex-wrap:wrap;gap:.45rem}
+.fpill{display:inline-flex;align-items:center;background:var(--accent-bg);
+  border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  padding:.3rem .7rem;font-family:var(--mono);font-size:.72rem;color:var(--text3);font-weight:500}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:1.6rem 1.85rem;box-shadow:var(--shadow-sm);
+  transition:background var(--t),border-color var(--t),box-shadow var(--t)}
+.card:hover{border-color:var(--border-strong);box-shadow:var(--shadow-md)}
+.card-ttl{font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.card-ttl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.fgrid{display:flex;flex-direction:column;gap:1.1rem}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.flbl{font-size:.79rem;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:.35rem}
+.fhint{font-size:.7rem;color:var(--muted);font-weight:400}
+.finp{background:var(--inp-bg);border:1.5px solid var(--border);border-radius:var(--radius-md);
+  padding:.7rem .95rem;color:var(--text);font-family:var(--mono);font-size:.9rem;
+  outline:none;width:100%;transition:all var(--t)}
+.finp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(168,85,247,.13)}
+.finp::placeholder{color:var(--muted-soft);font-family:var(--font);font-style:italic}
+select.finp{cursor:pointer}
+select.finp option{background:var(--surface);color:var(--text)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem}
+
+.hint-box,.info-box{border-radius:var(--radius-md);padding:.6rem .85rem;
+  font-size:.79rem;display:flex;gap:.5rem;line-height:1.5}
+.hint-box{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text)}
+.info-box{background:var(--info-bg);border:1px solid var(--info-border);color:var(--info-text)}
+
+.mode-toggle{display:inline-flex;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--radius-md);padding:3px;gap:3px}
+.mode-btn{padding:.48rem 1.15rem;border:none;border-radius:calc(var(--radius-md) - 3px);
+  background:transparent;color:var(--muted);font-family:var(--font);font-size:.84rem;
+  font-weight:600;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.mode-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow-purple-light)}
+.mode-btn:not(.active):hover{color:var(--text);background:var(--accent-soft)}
+
+.mx-size-btns{display:flex;gap:.4rem;margin-bottom:.5rem}
+.mx-size-btn{padding:.32rem .8rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface2);color:var(--muted);font-family:var(--font);font-size:.8rem;
+  font-weight:600;cursor:pointer;transition:all var(--t)}
+.mx-size-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+.mx-grid{display:inline-grid;gap:5px}
+.mx-cell{width:54px;height:46px;text-align:center;background:var(--inp-bg);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);
+  font-family:var(--mono);font-size:.92rem;font-weight:500;outline:none;transition:all var(--t)}
+.mx-cell:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(168,85,247,.13)}
+
+.run-btn{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;padding:.85rem;
+  background:linear-gradient(135deg,var(--grad-start),var(--grad-end));border:none;
+  border-radius:var(--radius-md);color:#fff;font-family:var(--font);font-size:.92rem;
+  font-weight:700;cursor:pointer;transition:all var(--t);box-shadow:var(--shadow-purple-light)}
+.run-btn:hover{transform:translateY(-1px);filter:brightness(1.08);
+  box-shadow:0 12px 36px rgba(168,85,247,.35)}
+.run-btn:active{transform:none;filter:brightness(.96)}
+
+.res-card{background:var(--result-bg);border:2px solid var(--result-border);
+  border-radius:var(--radius-lg);overflow:hidden;animation:popIn .2s cubic-bezier(.4,0,.2,1);
+  box-shadow:var(--shadow-purple-light)}
+@keyframes popIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.res-head{background:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+  padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.res-lbl{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.9)}
+.copy-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  border-radius:6px;padding:.18rem .55rem;color:#fff;font-size:.7rem;font-weight:600;
+  cursor:pointer;transition:all var(--t);font-family:var(--font)}
+.copy-btn:hover{background:rgba(255,255,255,.32)}
+.res-body{padding:.9rem 1.1rem}
+.res-text{font-family:var(--mono);font-size:clamp(.95rem,2.5vw,1.2rem);font-weight:500;
+  color:var(--text);word-break:break-all;line-height:1.5;min-height:1.8rem}
+.res-meta{margin-top:.4rem;font-size:.72rem;color:var(--muted);display:flex;gap:.85rem}
+
+.err-card{background:var(--error-bg);border:1.5px solid var(--error-border);
+  border-radius:var(--radius-lg);padding:.8rem 1rem;color:var(--error-text);
+  font-size:.83rem;display:flex;gap:.55rem;align-items:flex-start;animation:popIn .2s ease}
+
+.steps-sec{margin-top:.65rem}
+.steps-toggle-btn{display:flex;align-items:center;gap:.45rem;background:var(--accent-soft);
+  border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;
+  color:var(--text3);font-family:var(--font);font-size:.76rem;font-weight:600;cursor:pointer;transition:all var(--t)}
+.steps-toggle-btn:hover{border-color:var(--accent);background:var(--accent-bg)}
+.s-arr{transition:transform var(--t)}
+.steps-list{margin-top:.5rem;background:var(--step-bg);border:1px solid var(--step-border);
+  border-radius:var(--radius-md);padding:.75rem .9rem;max-height:210px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.step-row{display:flex;gap:.65rem;padding:.28rem 0;border-bottom:1px solid var(--step-border);
+  font-size:.77rem;line-height:1.5}
+.step-row:last-child{border-bottom:none}
+.step-n{font-family:var(--mono);font-size:.68rem;color:var(--muted-soft);min-width:26px;padding-top:.05rem}
+.step-t{color:var(--text);font-family:var(--mono)}
+
+.pf-wrap{background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:.9rem 1.1rem}
+.pf-lbl{font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.6rem}
+.pf-grid{display:inline-grid;grid-template-columns:repeat(5,40px);gap:4px}
+.pf-cell{width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:var(--mono);font-size:.87rem;font-weight:600;color:var(--accent);transition:all var(--t)}
+.pf-cell:hover{background:var(--accent-bg);border-color:var(--accent)}
+
+/* ─── ROTOR CIPHER UI ─── */
+.rotor-count-ctrl{display:flex;align-items:center;gap:.7rem}
+.rotor-count-display{
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;
+  color:var(--accent);min-width:28px;text-align:center}
+.rotor-count-btn{
+  width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;
+  background:var(--accent);color:#fff;font-size:1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;transition:all var(--t);
+  box-shadow:var(--shadow-purple-light);flex-shrink:0}
+.rotor-count-btn:hover{filter:brightness(1.12);transform:scale(1.05)}
+.rotor-count-btn:active{transform:scale(.97)}
+
+.rotor-keys-list{display:flex;flex-direction:column;gap:.6rem}
+.rotor-key-row{display:flex;align-items:center;gap:.7rem}
+.rotor-key-label{
+  font-family:var(--mono);font-size:.78rem;font-weight:700;
+  color:var(--text2);min-width:32px;flex-shrink:0}
+.rotor-key-inp{
+  flex:1;background:var(--rotor-key-bg);border:1.5px solid var(--rotor-key-border);
+  border-radius:var(--radius-md);padding:.6rem .9rem;color:var(--text);
+  font-family:var(--mono);font-size:.88rem;outline:none;transition:all var(--t);
+  text-transform:uppercase}
+.rotor-key-inp:focus{border-color:var(--rotor-key-focus);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+.rotor-key-inp::placeholder{color:var(--muted-soft);font-family:var(--font);font-style:italic;text-transform:none}
+.rotor-key-status{
+  font-family:var(--mono);font-size:.7rem;min-width:18px;text-align:center;
+  flex-shrink:0;font-weight:700}
+.rotor-key-status.ok{color:#22c55e}
+.rotor-key-status.err{color:#ef4444}
+
+.gen-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.7rem;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  border:none;border-radius:var(--radius-md);
+  color:#fff;font-family:var(--font);font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all var(--t);box-shadow:var(--shadow-purple-light)}
+.gen-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.gen-btn:active{transform:none}
+
+.rotor-alphabet-display{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:.55rem .85rem;
+  font-family:var(--mono);font-size:.78rem;color:var(--muted);
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.rotor-alpha-label{font-weight:700;color:var(--text3);flex-shrink:0}
+.rotor-alpha-chars{color:var(--text);letter-spacing:.5px}
+
+.hint-small{font-size:.7rem;color:var(--muted);font-style:italic;margin-top:.15rem}
+
+footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;
+  text-align:center;color:var(--muted);font-size:.75rem;margin-top:2.5rem}
+footer strong{color:var(--text3)}
+
+.mob-overlay{display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.mob-drawer{position:absolute;top:0;left:0;bottom:0;width:270px;
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem;
+  animation:slideRight .22s ease;overflow-y:auto}
+@keyframes slideRight{from{transform:translateX(-100%)}to{transform:none}}
+.mob-head{display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:.9rem;border-bottom:1px solid var(--border)}
+.mob-close{background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:.28rem .55rem;cursor:pointer;color:var(--text);font-size:.95rem;transition:all var(--t)}
+.mob-close:hover{border-color:var(--accent);color:var(--accent)}
+.mob-overlay.open{display:block}
+
+@media(max-width:900px){
+  .page{grid-template-columns:1fr;padding:1.25rem 1rem}
+  .sidebar{display:none}
+  .menu-btn{display:flex;align-items:center;justify-content:center}
+  .logo-sub{display:none}
+}
+@media(max-width:580px){
+  .hdr-inner{padding:0 .85rem}.pnl-head{padding:1.2rem 1.25rem}.card{padding:1.2rem 1.25rem}
+  .r2,.r3{grid-template-columns:1fr}.formula-row{flex-direction:column}
+  .mx-cell{width:46px;height:40px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <button class="menu-btn" onclick="openNav()">☰</button>
+    <a class="logo" href="#">
+      <div class="logo-icon">🔐</div>
+      <div class="logo-texts">
+        <span class="logo-name">Kriptografi</span>
+        <span class="logo-sub">Muhammad Abdul Majid · 2112012320037 · A</span>
+      </div>
+    </a>
+    <div class="hdr-space"></div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span id="t-icon">☀️</span>
+      <span class="theme-em" id="t-lbl">Light</span>
+      <div class="sw-track"><div class="sw-knob"></div></div>
+    </button>
+  </div>
+</header>
+
+<div class="mob-overlay" id="mob-nav" onclick="closeNavOutside(event)">
+  <div class="mob-drawer">
+    <div class="mob-head">
+      <span style="font-weight:700;color:var(--text3);font-size:.9rem">Menu Cipher</span>
+      <button class="mob-close" onclick="closeNav()">✕</button>
+    </div>
+    <ul class="nav-ul" id="mob-nav-ul"></ul>
+  </div>
+</div>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-lbl">Pilih Cipher</div>
+    <ul class="nav-ul" id="desk-nav-ul"></ul>
+  </aside>
+
+  <main id="main">
+
+    <!-- ── VIGENERE ── -->
+    <section id="panel-vigenere" class="panel active">
+      <div class="pnl-head">
+        <div class="pnl-tag">01 · Substitusi Polyalphabetic</div>
+        <h1 class="pnl-title"><strong>Vigenere</strong> Cipher</h1>
+        <p class="pnl-desc">Enkripsi menggunakan kunci yang diulang pada setiap posisi karakter — gabungan dari banyak Caesar Cipher sekaligus.</p>
+        <div class="formula-row">
+          <span class="fpill">🔒 C = (P + K) mod 26</span>
+          <span class="fpill">🔓 P = (C − K + 26) mod 26</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">⚙️ Konfigurasi</div>
+        <div class="fgrid">
+          <div class="field">
+            <label class="flbl">Teks Input <span class="fhint">(huruf alfabet saja, otomatis uppercase)</span></label>
+            <input class="finp" id="vig-text" value="THISPLAINTEXT" placeholder="Contoh: HELLOWORLD" />
+          </div>
+          <div class="field">
+            <label class="flbl">Kunci</label>
+            <input class="finp" id="vig-key" value="SONY" placeholder="Contoh: SONY" />
+          </div>
+          <div class="field">
+            <label class="flbl">Mode Operasi</label>
+            <div class="mode-toggle">
+              <button class="mode-btn active" onclick="setMode('vig','encrypt',this)">🔒 Enkripsi</button>
+              <button class="mode-btn" onclick="setMode('vig','decrypt',this)">🔓 Dekripsi</button>
+            </div>
+          </div>
+          <button class="run-btn" onclick="runVigenere()">▶&nbsp; Jalankan Vigenere Cipher</button>
+          <div id="vig-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── AFFINE ── -->
+    <section id="panel-affine" class="panel">
+      <div class="pnl-head">
+        <div class="pnl-tag">02 · Substitusi Linear</div>
+        <h1 class="pnl-title"><strong>Affine</strong> Cipher</h1>
+        <p class="pnl-desc">Perluasan Caesar Cipher dengan transformasi linear modular. Menggunakan dua kunci: faktor pengali <em>a</em> dan pergeseran <em>b</em>.</p>
+        <div class="formula-row">
+          <span class="fpill">🔒 C = (a·P + b) mod 26</span>
+          <span class="fpill">🔓 P = a⁻¹·(C − b) mod 26</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">⚙️ Konfigurasi</div>
+        <div class="fgrid">
+          <div class="field">
+            <label class="flbl">Teks Input</label>
+            <input class="finp" id="aff-text" value="KRIPTO" placeholder="Contoh: KRIPTO" />
+          </div>
+          <div class="r2">
+            <div class="field">
+              <label class="flbl">Kunci <em>a</em> <span class="fhint">(relatif prima dengan 26)</span></label>
+              <input class="finp" id="aff-a" type="number" value="7" min="1" max="25" />
+            </div>
+            <div class="field">
+              <label class="flbl">Kunci <em>b</em> <span class="fhint">(pergeseran 0–25)</span></label>
+              <input class="finp" id="aff-b" type="number" value="10" min="0" max="25" />
+            </div>
+          </div>
+          <div class="hint-box">💡 Nilai <strong>a</strong> yang valid: 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25</div>
+          <div class="field">
+            <label class="flbl">Mode Operasi</label>
+            <div class="mode-toggle">
+              <button class="mode-btn active" onclick="setMode('aff','encrypt',this)">🔒 Enkripsi</button>
+              <button class="mode-btn" onclick="setMode('aff','decrypt',this)">🔓 Dekripsi</button>
+            </div>
+          </div>
+          <button class="run-btn" onclick="runAffine()">▶&nbsp; Jalankan Affine Cipher</button>
+          <div id="aff-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PLAYFAIR ── -->
+    <section id="panel-playfair" class="panel">
+      <div class="pnl-head">
+        <div class="pnl-tag">03 · Substitusi Bigram</div>
+        <h1 class="pnl-title"><strong>Playfair</strong> Cipher</h1>
+        <p class="pnl-desc">Enkripsi pasangan huruf (bigram) menggunakan matriks kunci 5×5. Huruf J otomatis digabung dengan I.</p>
+        <div class="formula-row">
+          <span class="fpill">↔ Baris sama → geser kanan/kiri</span>
+          <span class="fpill">↕ Kolom sama → geser bawah/atas</span>
+          <span class="fpill">⊞ Lainnya → sudut persegi panjang</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">⚙️ Konfigurasi</div>
+        <div class="fgrid">
+          <div class="field">
+            <label class="flbl">Teks Input <span class="fhint">(J otomatis menjadi I)</span></label>
+            <input class="finp" id="pf-text" value="AUSTRALIA" placeholder="Contoh: AUSTRALIA" />
+          </div>
+          <div class="field">
+            <label class="flbl">Kunci</label>
+            <input class="finp" id="pf-key" value="GADJAH" placeholder="Contoh: GADJAH" oninput="updatePFMatrix()" />
+          </div>
+          <div id="pf-mat-wrap" style="display:none" class="pf-wrap">
+            <div class="pf-lbl">📋 Matriks Kunci 5×5 (Pratinjau)</div>
+            <div class="pf-grid" id="pf-mat-grid"></div>
+          </div>
+          <div class="field">
+            <label class="flbl">Mode Operasi</label>
+            <div class="mode-toggle">
+              <button class="mode-btn active" onclick="setMode('pf','encrypt',this)">🔒 Enkripsi</button>
+              <button class="mode-btn" onclick="setMode('pf','decrypt',this)">🔓 Dekripsi</button>
+            </div>
+          </div>
+          <button class="run-btn" onclick="runPlayfair()">▶&nbsp; Jalankan Playfair Cipher</button>
+          <div id="pf-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HILL ── -->
+    <section id="panel-hill" class="panel">
+      <div class="pnl-head">
+        <div class="pnl-tag">04 · Aljabar Matriks</div>
+        <h1 class="pnl-title"><strong>Hill</strong> Cipher</h1>
+        <p class="pnl-desc">Enkripsi berbasis perkalian matriks dan aritmetika modular. Plaintext dibagi menjadi blok vektor sesuai ukuran matriks kunci.</p>
+        <div class="formula-row">
+          <span class="fpill">🔒 C = K × P (mod 26)</span>
+          <span class="fpill">🔓 P = K⁻¹ × C (mod 26)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">⚙️ Konfigurasi</div>
+        <div class="fgrid">
+          <div class="field">
+            <label class="flbl">Teks Input <span class="fhint">(panjang harus kelipatan ukuran matriks)</span></label>
+            <input class="finp" id="hill-text" value="HELP" placeholder="Contoh: HELP atau ATTACK" />
+          </div>
+          <div class="field">
+            <label class="flbl">Ukuran Matriks Kunci</label>
+            <div class="mx-size-btns">
+              <button class="mx-size-btn active" onclick="setHillSize(2,this)">2 × 2</button>
+              <button class="mx-size-btn" onclick="setHillSize(3,this)">3 × 3</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="flbl">Matriks Kunci K</label>
+            <div class="mx-grid" id="hill-mx-grid"></div>
+          </div>
+          <div class="field">
+            <label class="flbl">Mode Operasi</label>
+            <div class="mode-toggle">
+              <button class="mode-btn active" onclick="setMode('hill','encrypt',this)">🔒 Enkripsi</button>
+              <button class="mode-btn" onclick="setMode('hill','decrypt',this)">🔓 Dekripsi</button>
+            </div>
+          </div>
+          <button class="run-btn" onclick="runHill()">▶&nbsp; Jalankan Hill Cipher</button>
+          <div id="hill-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ROTOR CIPHER ── -->
+    <section id="panel-rotor" class="panel">
+      <div class="pnl-head">
+        <div class="pnl-tag">05 · Mesin Rotor</div>
+        <h1 class="pnl-title"><strong>Rotor</strong> Cipher</h1>
+        <p class="pnl-desc">Simulasi mesin rotor kustom — jumlah rotor bebas, kunci substitusi tiap rotor dapat diatur sendiri. Setiap karakter diproses melalui semua rotor (maju &amp; balik), rotor berputar otomatis seperti odometer.</p>
+        <div class="formula-row">
+          <span class="fpill">Input → R(n-1)→…→R0 → R0→…→R(n-1) → Output</span>
+          <span class="fpill">Rotor kanan +1 setiap karakter (carry ke kiri)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">⚙️ Konfigurasi</div>
+        <div class="fgrid">
+
+          <!-- Teks Input -->
+          <div class="field">
+            <label class="flbl">Teks Input <span class="fhint">(huruf alfabet saja, otomatis uppercase)</span></label>
+            <input class="finp" id="rot-text" value="BACADE" placeholder="Contoh: BACADE"
+              oninput="onRotorTextChange()" />
+          </div>
+
+          <!-- Alphabet yang terdeteksi -->
+          <div class="rotor-alphabet-display" id="rot-alpha-display">
+            <span class="rotor-alpha-label">Alphabet:</span>
+            <span class="rotor-alpha-chars" id="rot-alpha-chars">B A C D E</span>
+            <span class="fhint">(dari huruf unik teks input, urutan kemunculan)</span>
+          </div>
+
+          <!-- Jumlah Rotor -->
+          <div class="field">
+            <label class="flbl">Jumlah Rotor:</label>
+            <div class="rotor-count-ctrl">
+              <button class="rotor-count-btn" onclick="changeRotorCount(-1)">−</button>
+              <span class="rotor-count-display" id="rot-count-display">3</span>
+              <button class="rotor-count-btn" onclick="changeRotorCount(+1)">+</button>
+            </div>
+          </div>
+
+          <!-- Posisi Awal Rotor -->
+          <div class="field" style="max-width:200px">
+            <label class="flbl">Posisi Awal Rotor:</label>
+            <select class="finp" id="rot-start-pos">
+              <option value="0">K0</option>
+            </select>
+          </div>
+
+          <!-- Kunci Substitusi Rotor -->
+          <div class="field">
+            <label class="flbl">Kunci Substitusi Rotor:
+              <span class="fhint">(permutasi huruf dari alphabet di atas)</span>
+            </label>
+            <div class="hint-small">Setiap kunci harus berisi huruf unik dari teks input (permutasi). Panjang harus sama untuk semua rotor.</div>
+            <div class="rotor-keys-list" id="rot-keys-list"></div>
+          </div>
+
+          <!-- Generate dari Teks Input -->
+          <button class="gen-btn" onclick="generateRotorKeys()">
+            🎲 Generate dari Teks Input
+          </button>
+
+          <!-- Enkripsi / Dekripsi -->
+          <div class="field">
+            <label class="flbl">Mode Operasi</label>
+            <div class="mode-toggle">
+              <button class="mode-btn active" onclick="setMode('rot','encrypt',this)">🔒 Enkripsi</button>
+              <button class="mode-btn" onclick="setMode('rot','decrypt',this)">🔓 Dekripsi</button>
+            </div>
+          </div>
+
+          <button class="run-btn" onclick="runRotor()">▶&nbsp; Jalankan Rotor Cipher</button>
+          <div id="rot-result"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <strong>Implementasi Algoritma Kriptografi Klasik</strong> · Semester Genap 2025/2026<br/>
+  Departemen Teknik Komputer · Universitas Diponegoro &nbsp;·&nbsp; Backend: <strong>Go (net/http)</strong> · Frontend: HTML/CSS/JS
+</footer>
+
+<script>
+// ── DATA ──
+const CIPHERS = [
+  {id:'vigenere', name:'Vigenere Cipher', icon:'🔁'},
+  {id:'affine',   name:'Affine Cipher',   icon:'📐'},
+  {id:'playfair', name:'Playfair Cipher', icon:'🔲'},
+  {id:'hill',     name:'Hill Cipher',     icon:'🧮'},
+  {id:'rotor',    name:'Rotor Cipher',    icon:'⚙️'},
+];
+const modes = {vig:'encrypt',aff:'encrypt',pf:'encrypt',hill:'encrypt',rot:'encrypt'};
+let hillSize = 2, hillMatrix = [[3,3],[2,5]], isDark = false;
+
+// ── ROTOR STATE ──
+let rotorCount = 3;
+let rotorKeys = ['CDEAB','BEACD','EADBC'];
+
+// ── NAV BUILD ──
+function buildNav(ulEl, closable) {
+  ulEl.innerHTML = CIPHERS.map((c,i) => `
+    <li><button class="nav-btn ${i===0?'active':''}" data-id="${c.id}"
+      onclick="switchPanel('${c.id}',${!!closable})">
+      <span class="nav-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="nav-name">${c.name}</span>
+      <span class="nav-arr">›</span>
+    </button></li>`).join('');
+}
+buildNav(document.getElementById('desk-nav-ul'));
+buildNav(document.getElementById('mob-nav-ul'), true);
+
+function switchPanel(id, close=false) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(close) closeNav();
+  document.getElementById('main').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── THEME ──
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
+  document.getElementById('t-icon').textContent = isDark?'🌙':'☀️';
+  document.getElementById('t-lbl').textContent  = isDark?'Dark':'Light';
+}
+
+// ── MOBILE NAV ──
+function openNav()  { document.getElementById('mob-nav').classList.add('open'); }
+function closeNav() { document.getElementById('mob-nav').classList.remove('open'); }
+function closeNavOutside(e) { if(e.target===document.getElementById('mob-nav')) closeNav(); }
+
+// ── MODE ──
+function setMode(prefix, mode, btn) {
+  modes[prefix] = mode;
+  btn.closest('.mode-toggle').querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── HILL ──
+function setHillSize(size, btn) {
+  hillSize = size;
+  document.querySelectorAll('.mx-size-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  hillMatrix = Array.from({length:size},(_,i)=>Array.from({length:size},(_,j)=>i===j?1:0));
+  renderHillMatrix();
+}
+function renderHillMatrix() {
+  const g = document.getElementById('hill-mx-grid');
+  g.style.gridTemplateColumns = `repeat(${hillSize}, 54px)`;
+  g.innerHTML = '';
+  for(let i=0;i<hillSize;i++) for(let j=0;j<hillSize;j++) {
+    const inp = document.createElement('input');
+    inp.type='number'; inp.className='mx-cell'; inp.value=hillMatrix[i][j];
+    inp.dataset.i=i; inp.dataset.j=j;
+    inp.addEventListener('input',e=>{ hillMatrix[+e.target.dataset.i][+e.target.dataset.j]=parseInt(e.target.value)||0; });
+    g.appendChild(inp);
+  }
+}
+renderHillMatrix();
+
+// ── PLAYFAIR PREVIEW ──
+function buildPFMatrix(key) {
+  const alpha='ABCDEFGHIKLMNOPQRSTUVWXYZ';
+  const seen=new Set(), m=[];
+  for(const c of key.toUpperCase().replace(/J/g,'I').replace(/[^A-Z]/g,'')+alpha)
+    if(!seen.has(c)){seen.add(c);m.push(c);}
+  return m;
+}
+function updatePFMatrix() {
+  const key = document.getElementById('pf-key').value;
+  if(!key) return;
+  const m = buildPFMatrix(key);
+  const wrap = document.getElementById('pf-mat-wrap');
+  wrap.style.display='block';
+  document.getElementById('pf-mat-grid').innerHTML = m.map(c=>`<div class="pf-cell">${(c==='I'||c==='J')?'I/J':c}</div>`).join('');
+}
+updatePFMatrix();
+
+// ── ROTOR CIPHER LOGIC ──
+
+function getRotorAlphabet() {
+  const raw = document.getElementById('rot-text').value.toUpperCase().replace(/[^A-Z]/g,'');
+  // Ambil huruf unik lalu URUTKAN ABJAD — sama persis dengan Go backend (sort.Slice)
+  const seen = new Set();
+  for(const c of raw) seen.add(c);
+  return [...seen].sort().join('');
+}
+
+function onRotorTextChange() {
+  const alpha = getRotorAlphabet();
+  document.getElementById('rot-alpha-chars').textContent = alpha.split('').join(' ') || '(kosong)';
+  updateStartPosOptions(alpha);
+  renderRotorKeysList(alpha);
+}
+
+function updateStartPosOptions(alpha) {
+  const sel = document.getElementById('rot-start-pos');
+  const curVal = sel.value;
+  sel.innerHTML = '';
+  for(let i=0;i<Math.max(rotorCount,1);i++){
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = 'K'+i;
+    sel.appendChild(opt);
+  }
+  if(curVal && parseInt(curVal) < sel.options.length) sel.value = curVal;
+}
+
+function renderRotorKeysList(alpha) {
+  const list = document.getElementById('rot-keys-list');
+  // Perbarui jumlah entri
+  while(rotorKeys.length < rotorCount) rotorKeys.push('');
+  rotorKeys.length = rotorCount;
+
+  list.innerHTML = '';
+  for(let i=0;i<rotorCount;i++){
+    const row = document.createElement('div');
+    row.className = 'rotor-key-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'rotor-key-label'; lbl.textContent = 'K'+i+':';
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'rotor-key-inp';
+    inp.value = rotorKeys[i] || '';
+    inp.placeholder = alpha ? 'Permutasi dari: '+alpha : 'Input teks dulu';
+    inp.maxLength = alpha.length || 26;
+    const idx = i;
+    inp.addEventListener('input', e=>{
+      rotorKeys[idx] = e.target.value.toUpperCase().replace(/[^A-Z]/g,'');
+      e.target.value = rotorKeys[idx];
+      validateKeyDisplay(inp, status, alpha);
+    });
+    const status = document.createElement('span');
+    status.className = 'rotor-key-status';
+    validateKeyDisplay(inp, status, alpha);
+    row.appendChild(lbl); row.appendChild(inp); row.appendChild(status);
+    list.appendChild(row);
+  }
+}
+
+function validateKeyDisplay(inp, statusEl, alpha) {
+  if(!alpha || !inp.value) { statusEl.textContent=''; statusEl.className='rotor-key-status'; return; }
+  const v = inp.value;
+  if(v.length !== alpha.length) { statusEl.textContent='✗'; statusEl.className='rotor-key-status err'; return; }
+  const seen = new Set();
+  let ok = true;
+  for(const c of v){
+    if(seen.has(c)||!alpha.includes(c)){ok=false;break;}
+    seen.add(c);
+  }
+  if(ok && seen.size===alpha.length){ statusEl.textContent='✓'; statusEl.className='rotor-key-status ok'; }
+  else { statusEl.textContent='✗'; statusEl.className='rotor-key-status err'; }
+}
+
+function changeRotorCount(delta) {
+  rotorCount = Math.max(1, rotorCount + delta);
+  document.getElementById('rot-count-display').textContent = rotorCount;
+  const alpha = getRotorAlphabet();
+  updateStartPosOptions(alpha);
+  renderRotorKeysList(alpha);
+}
+
+// Generate kunci rotor secara acak dari alphabet
+function generateRotorKeys() {
+  const alpha = getRotorAlphabet();
+  if(!alpha){ alert('Masukkan teks terlebih dahulu!'); return; }
+  rotorKeys = [];
+  for(let i=0;i<rotorCount;i++){
+    // Fisher-Yates shuffle
+    const arr = alpha.split('');
+    for(let j=arr.length-1;j>0;j--){
+      const k = Math.floor(Math.random()*(j+1));
+      [arr[j],arr[k]] = [arr[k],arr[j]];
+    }
+    rotorKeys.push(arr.join(''));
+  }
+  renderRotorKeysList(alpha);
+}
+
+// Inisialisasi rotor saat halaman dimuat
+(function initRotor(){
+  const alpha = getRotorAlphabet();
+  document.getElementById('rot-alpha-chars').textContent = alpha.split('').join(' ');
+  updateStartPosOptions(alpha);
+  renderRotorKeysList(alpha);
+})();
+
+// ── API ──
+async function api(ep, body) {
+  try {
+    const r = await fetch('/api/'+ep, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    return r.json();
+  } catch(e) {
+    return {ok:false, error:'Tidak dapat terhubung ke server. Pastikan Go server berjalan di port 8080.'};
+  }
+}
+
+// ── RENDER ──
+function render(id, data, label) {
+  const el = document.getElementById(id);
+  if(!data.ok) {
+    el.innerHTML=`<div class="err-card"><span>⚠️</span><div><strong>Error:</strong> ${data.error}</div></div>`;
+    return;
+  }
+  const steps = data.steps?.length ? `
+    <div class="steps-sec">
+      <button class="steps-toggle-btn" onclick="toggleSteps(this)">
+        <span class="s-arr">▶</span> Lihat ${data.steps.length} langkah perhitungan
+      </button>
+      <div class="steps-list" style="display:none">
+        ${data.steps.map((s,i)=>`<div class="step-row"><span class="step-n">${String(i+1).padStart(3,'0')}</span><span class="step-t">${s}</span></div>`).join('')}
+      </div>
+    </div>` : '';
+  el.innerHTML = `
+    <div class="res-card">
+      <div class="res-head">
+        <span class="res-lbl">✓ ${label}</span>
+        <button class="copy-btn" onclick="doCopy('${data.output}',this)">Salin</button>
+      </div>
+      <div class="res-body">
+        <div class="res-text">${data.output||'—'}</div>
+        <div class="res-meta"><span>${data.output?.length||0} karakter</span></div>
+      </div>
+    </div>${steps}`;
+}
+
+function toggleSteps(btn) {
+  const list = btn.nextElementSibling;
+  const open = list.style.display==='none';
+  list.style.display = open?'block':'none';
+  btn.querySelector('.s-arr').textContent = open?'▼':'▶';
+}
+
+function doCopy(text, btn) {
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Tersalin!';
+    setTimeout(()=>btn.textContent='Salin',2000);
+  });
+}
+
+// ── RUNNERS ──
+async function runVigenere() {
+  render('vig-result', await api('vigenere',{text:document.getElementById('vig-text').value,key:document.getElementById('vig-key').value,mode:modes.vig}),
+    modes.vig==='encrypt'?'Ciphertext':'Plaintext');
+}
+async function runAffine() {
+  render('aff-result', await api('affine',{text:document.getElementById('aff-text').value,a:+document.getElementById('aff-a').value,b:+document.getElementById('aff-b').value,mode:modes.aff}),
+    modes.aff==='encrypt'?'Ciphertext':'Plaintext');
+}
+async function runPlayfair() {
+  updatePFMatrix();
+  render('pf-result', await api('playfair',{text:document.getElementById('pf-text').value,key:document.getElementById('pf-key').value,mode:modes.pf}),
+    modes.pf==='encrypt'?'Ciphertext':'Plaintext');
+}
+async function runHill() {
+  render('hill-result', await api('hill',{text:document.getElementById('hill-text').value,key_matrix:hillMatrix,mode:modes.hill}),
+    modes.hill==='encrypt'?'Ciphertext':'Plaintext');
+}
+async function runRotor() {
+  const alpha = getRotorAlphabet();
+  if(!alpha){ render('rot-result',{ok:false,error:'Teks input tidak boleh kosong'},''); return; }
+  const startPos = parseInt(document.getElementById('rot-start-pos').value)||0;
+  const currentKeys = rotorKeys.slice(0, rotorCount);
+  render('rot-result',
+    await api('rotor',{
+      text: document.getElementById('rot-text').value,
+      mode: modes.rot,
+      start_rotor: startPos,
+      rotor_keys: currentKeys
+    }),
+    modes.rot==='encrypt'?'Ciphertext':'Plaintext');
+}
+</script>
+</body>
+</html>

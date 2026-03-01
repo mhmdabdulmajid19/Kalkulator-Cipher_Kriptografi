@@ -1,5 +1,4 @@
 # 🔐 Kriptografi Klasik — Web App (Go + HTML/JS)
-Tugas Semester Genap 2025/2026 · Departemen Teknik Komputer · UNDIP
 
 ## Struktur Project
 
